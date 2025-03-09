@@ -4,7 +4,7 @@ import { TextInput } from "@mantine/core"
 import { useForm } from '@mantine/form';
 import { PrimaryButton } from "../../buttons/PrimaryButton";
 
-const FormLogin = ({ passwordSuggestion = "", onSubmit }) => {
+const FormLogin = ({ isLoading, onSubmit }) => {
     const form = useForm({
         mode: 'uncontrolled',
         initialValues: {
@@ -17,11 +17,6 @@ const FormLogin = ({ passwordSuggestion = "", onSubmit }) => {
         }
     });
 
-    React.useEffect(() => {
-        if (passwordSuggestion !== "") {
-            form.setErrors({ password: passwordSuggestion });
-        }
-    }, [passwordSuggestion])
 
     return (
         <>
@@ -45,6 +40,7 @@ const FormLogin = ({ passwordSuggestion = "", onSubmit }) => {
 
                 <div className="flex justify-end w-full">
                     <PrimaryButton
+                        disabled={isLoading}
                         type="submit"
                     >Submit</PrimaryButton>
                 </div>

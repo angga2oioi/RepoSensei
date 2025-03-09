@@ -14,21 +14,22 @@ const SetupViews = ({ }) => {
     const ErrorMessage = useErrorMessage();
     const { csrf } = React.useContext(AppContext)
     const router = useRouter()
-
-    const [passwordSuggestion, setPasswordSuggestion] = React.useState("")
-
+    const [isLoading, setIsLoading] = React.useState(false)
 
     const handleSetup = async (form) => {
         try {
+            setIsLoading(true)
             let strength = passwordStrength(form?.password).value;
             if (strength !== STRONG_PASSWORD_SCORE) {
-                setPasswordSuggestion(`Your password is ${strength}, please create a ${STRONG_PASSWORD_SCORE} password`)
-                return null
+                throw new Error(`Your password is ${strength}, please create a ${STRONG_PASSWORD_SCORE} password`)
             }
             await setupAccount(csrf, form)
-            router.push(`/dashboard`)
+            window.location.href = `/dashboard`
+
         } catch (e) {
             ErrorMessage(e)
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -38,7 +39,7 @@ const SetupViews = ({ }) => {
                 <div className="p-6 w-full max-w-[400px] space-y-3">
                     <h1 className="flex justify-center text-lg">Create Account</h1>
                     <FormLogin
-                        passwordSuggestion={passwordSuggestion}
+                        isLoading={isLoading}
                         onSubmit={handleSetup}
                     />
                 </div>
