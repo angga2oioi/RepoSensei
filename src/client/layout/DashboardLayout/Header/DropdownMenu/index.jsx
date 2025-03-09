@@ -8,7 +8,6 @@ import { TbLockPassword } from "react-icons/tb";
 
 const DropdownMenu = ({ children, account }) => {
     const [isPasswordModalVisible, setIsPasswordModalVisible] = React.useState(false)
-
     return (
         <>
             <Menu shadow="md" >

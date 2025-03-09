@@ -7,13 +7,13 @@ import Sidebar from "./Sidebar";
 const DashboardLayoutViews = ({ children }) => {
     return (
         <>
-            <div className="w-full h-full space-y-3">
+            <div className="w-full h-full">
                 <Header />
-                <div className="px-3">
+                <div className="w-full flex">
                     <Sidebar />
-                    <>
+                    <div className="w-full px-3">
                         {children}
-                    </>
+                    </div>
                 </div>
             </div>
         </>

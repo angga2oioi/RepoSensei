@@ -11,7 +11,7 @@ const Header = () => {
     return (
         <>
             <div className="w-full flex justify-center">
-                <div className="w-full max-w-[1440px] bg-black px-3 py-4 text-white flex justify-end">
+                <div className="w-full max-w-[1440px] bg-black px-3 py-2 text-white flex justify-end">
                     <DropdownMenu account={account} >
                         <Avatar name={account?.username} className="cursor-pointer" />
                     </DropdownMenu>
