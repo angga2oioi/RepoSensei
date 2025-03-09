@@ -8,7 +8,7 @@ export const SecondaryButton = ({ children, ...props }) => {
         <>
             <Button
                 {...props}
-                className="!bg-white !text-black border-black px-3 py-2 rounded"
+                className="!bg-white !text-black !border-black px-3 py-2 rounded"
             >
                 {children}
             </Button>

@@ -1,5 +1,5 @@
 //@ts-check
-import { MANAGE_ACCOUNT_ROLES, MANAGE_REPOSITORIES_ROLES } from "@/global/utils/constant";
+import { MANAGE_ACCOUNT_ROLES, MANAGE_CREDENTIALS_ROLES, MANAGE_REPOSITORIES_ROLES, MANAGE_SETTINGS_ROLES } from "@/global/utils/constant";
 import mongoose from "../../utils/mongoose";
 import { toJSON, paginate, aggregatePaginate } from "../../utils/mongoose/plugins";
 
@@ -27,6 +27,8 @@ const AccountSchema = new mongoose.Schema(
                 values: [
                     MANAGE_ACCOUNT_ROLES,
                     MANAGE_REPOSITORIES_ROLES,
+                    MANAGE_CREDENTIALS_ROLES,
+                    MANAGE_SETTINGS_ROLES
                 ],
                 message: "{VALUE} is not supported",
             },

@@ -16,7 +16,7 @@ const TabBuilder = ({ items }) => {
                 </Tabs.List>
 
                 {
-                    items?.map((n) => <Tabs.Panel key={n?.id} value={n?.id}>{n?.element}</Tabs.Panel>)
+                    items?.map((n) => <Tabs.Panel key={n?.id} value={n?.id} className="py-2">{n?.element}</Tabs.Panel>)
                 }
 
             </Tabs>

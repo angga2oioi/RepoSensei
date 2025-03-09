@@ -7,13 +7,6 @@ const Axios = axios.create({
     withCredentials: true,
 });
 
-export const getMyStatuses = async (payload) => {
-
-    const { data } = await Axios.get(`/v1/accounts/me/status`)
-    return data.data
-
-}
-
 export const paginateAccount = async (params) => {
 
     const { data } = await Axios.get(`/v1/accounts`, {
@@ -21,23 +14,6 @@ export const paginateAccount = async (params) => {
     })
     return data.data
 
-}
-
-export const listAllAccount = async () => {
-
-    let page = 1
-    let res = []
-    while (true) {
-        let list = await paginateAccount({ page })
-        if (list?.results?.length < 1) {
-            break;
-        }
-
-        res = [...res, ...list?.results]
-        page += 1
-    }
-
-    return res
 }
 
 export const createAccount = async (payload) => {

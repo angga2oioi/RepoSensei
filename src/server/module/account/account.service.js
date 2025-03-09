@@ -1,7 +1,7 @@
 //@ts-check
 
-import { INVALID_INPUT_ERR_CODE, MANAGE_ACCOUNT_ROLES, MANAGE_REPOSITORIES_ROLES, NOT_FOUND_ERR_CODE, NOT_FOUND_ERR_MESSAGE } from "@/global/utils/constant";
-import { HttpError, minMaxNum, parseSortBy } from "@/global/utils/functions";
+import { INVALID_INPUT_ERR_CODE, MANAGE_ACCOUNT_ROLES, MANAGE_CREDENTIALS_ROLES, MANAGE_REPOSITORIES_ROLES, MANAGE_SETTINGS_ROLES, NOT_FOUND_ERR_CODE, NOT_FOUND_ERR_MESSAGE } from "@/global/utils/constant";
+import { HttpError, minMaxNum } from "@/global/utils/functions";
 import { Validator } from "node-input-validator";
 import accountModel from "./account.model";
 import * as bcrypt from "bcryptjs";
@@ -26,7 +26,9 @@ export const setupAccount = async (params) => {
         username: params?.username,
         roles: [
             MANAGE_ACCOUNT_ROLES,
-            MANAGE_REPOSITORIES_ROLES
+            MANAGE_REPOSITORIES_ROLES,
+            MANAGE_CREDENTIALS_ROLES,
+            MANAGE_SETTINGS_ROLES
         ]
     })
 
