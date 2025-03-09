@@ -7,7 +7,7 @@ import { Validator } from "node-input-validator";
 import credentialModel from "../credential/credential.model";
 import striptags from "striptags";
 import repoModel from "./repo.model";
-import { createBitbucketWebhook } from "@/server/utils/bitbucket";
+import { createBitbucketWebhook, removeBitbucketWebhook } from "@/server/utils/bitbucket";
 import { decrypt } from "@/server/utils/encryption";
 import mongoose from "mongoose";
 
@@ -66,13 +66,19 @@ const connectBitbucketRepository = async (params) => {
 
         const raw = await repoModel.create([payload], { session })
 
-        await createBitbucketWebhook({
+        const { uuid } = await createBitbucketWebhook({
             webhookUrl: `${params?.protocol}//${params?.hostname}/api/v1/repo/${raw?.[0]?._id?.toString()}/webhook`,
             workspace: payload?.connection?.workspace,
             repo_slug: payload?.connection?.repo_slug,
             username: secret?.username,
             password: secret?.password,
         })
+
+        await repoModel.findByIdAndUpdate(raw?.[0]?._id?.toString(), {
+            $set: {
+                "connection.hookId": uuid
+            }
+        }, { session })
 
         await session.commitTransaction()
         return raw?.[0]?.toJSON()
@@ -109,6 +115,21 @@ export const removeRepository = async (id) => {
     if (!raw) {
         throw HttpError(NOT_FOUND_ERR_CODE, NOT_FOUND_ERR_MESSAGE)
     }
+
+    const credential = await credentialModel.findById(raw?.secret?.toString())
+    if (!credential || credential?.type !== USERNAME_PASSWORD_CREDENTIAL_TYPE) {
+        throw HttpError(INVALID_INPUT_ERR_CODE, `credential not found`)
+    }
+
+    const secret = JSON.parse(decrypt(credential?.secret))
+
+    await removeBitbucketWebhook({
+        hookId: raw?.connection?.hookId,
+        workspace: raw?.connection?.workspace,
+        repo_slug: raw?.connection?.repo_slug,
+        username: secret?.username,
+        password: secret?.password,
+    })
 
     await repoModel.findByIdAndDelete(id)
 
