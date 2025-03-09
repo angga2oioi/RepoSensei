@@ -61,11 +61,14 @@ export const createCredential = async (params) => {
         throw HttpError(INVALID_INPUT_ERR_CODE, v.errors);
     }
 
+    const slug = await generateSlug(params?.name)
+
     let payload = sanitizeObject({
         name: striptags(params?.name),
-        slug: generateSlug(params?.slug),
+        slug,
         secret: encrypt(params?.secret)
     })
+    
 
     let raw = await credentialModel.create(payload)
 
@@ -120,9 +123,11 @@ export const paginateCredential = async (query, sortBy = "createdAt:desc", limit
         return json
     })
 
+    return list
+
 }
 
-export const getSecret = async(id)=>{
+export const getSecret = async (id) => {
     const raw = await credentialModel.findById(id)
     if (!raw) {
         return null
