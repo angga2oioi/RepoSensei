@@ -50,7 +50,7 @@ export const num2Int = (number) => {
 };
 
 export const sanitizeEmail = (email) => {
-    const [name, domain=""] = striptags(email?.toString())?.split("@")
+    const [name, domain = ""] = striptags(email?.toString())?.split("@")
 
     let realName = name?.split("+")?.[0]
 
@@ -86,12 +86,16 @@ export const parseSortBy = (sortBy) => {
 
 export const createSlug = (string) => {
     return string
+        .normalize("NFD") // Normalize accented characters
+        .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+        .replace(/[+(){}\[\]]/g, " ") // Convert `+`, `()`, `{}`, `[]` to spaces
+        .trim() // Trim spaces *after* replacing special characters
         .toLowerCase()
-        .replace(/ /g, "-")
-        .replace(/[^\w-]+/g, "")
-        .replace(/-{2,}/g, "-");
+        .replace(/\s+/g, "-") // Convert spaces to hyphens
+        .replace(/[^\w-]/g, "") // Remove non-word characters except "-"
+        .replace(/-{2,}/g, "-"); // Prevent multiple consecutive "-"
 };
 
-export const delay = (ms)=>{
+export const delay = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms));
 }

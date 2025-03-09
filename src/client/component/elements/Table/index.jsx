@@ -10,14 +10,14 @@ const TableBuilder = ({ items }) => {
                     <Table.Tr>
                         {
                             items?.[0] &&
-                            Object.keys(items?.[0])?.map((n) => <Table.Th className="capitalize" key={n}>{n}</Table.Th>)
+                            Object.keys(items?.[0])?.map((n) => <Table.Th className={`capitalize`} key={n}>{n}</Table.Th>)
                         }
 
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody >
                     {items?.map((n,i) => <Table.Tr key={"row" + i}>
-                        {Object.keys(n)?.map((m, k) => <Table.Td key={"col" + k} className="space-x-2">{n[m]}</Table.Td>)}
+                        {Object.keys(n)?.map((m, k) => <Table.Td key={"col" + k} className={`space-x-2 `}>{n[m]}</Table.Td>)}
                     </Table.Tr>)}
                 </Table.Tbody>
             </Table>
