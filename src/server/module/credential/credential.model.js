@@ -1,4 +1,5 @@
 //@ts-check
+import { USERNAME_PASSWORD_CREDENTIAL_TYPE } from "@/global/utils/constant";
 import mongoose from "../../utils/mongoose";
 import { toJSON, paginate, aggregatePaginate } from "../../utils/mongoose/plugins";
 
@@ -6,11 +7,24 @@ const { String, Mixed } = mongoose.Schema.Types;
 
 const CredentialSchema = new mongoose.Schema(
     {
+        type: {
+            type: String,
+            required: true,
+            trim: true,
+            index: true,
+            enum: {
+                values: [
+                    USERNAME_PASSWORD_CREDENTIAL_TYPE
+                ],
+                message: "{VALUE} is not supported",
+            },
+        },
         name: {
             type: String,
             required: true,
             trim: true,
             index: true,
+            maxLength:32
         },
         slug: {
             type: String,
@@ -18,7 +32,8 @@ const CredentialSchema = new mongoose.Schema(
             lowercase: true,
             trim: true,
             index: true,
-            unique: true
+            unique: true,
+            maxLength:64
         },
         secret: {
             type: Mixed,

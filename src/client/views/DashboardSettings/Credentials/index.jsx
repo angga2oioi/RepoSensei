@@ -1,4 +1,5 @@
 //@ts-check
+"use client"
 import React from "react"
 import { useCredentials } from "./hooks";
 import { Tooltip } from "@mantine/core";

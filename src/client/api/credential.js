@@ -7,6 +7,26 @@ const Axios = axios.create({
     withCredentials: true,
 });
 
+export const listAllCredential = async () => {
+    let page = 1
+    let results = []
+    while (true) {
+        let list = await paginateCredential({ page })
+        if (list?.results?.length < 1) {
+            break;
+        }
+
+        results = [
+            ...results,
+            ...(list?.results || [])
+        ]
+
+        page +=1
+    }
+
+    return results
+}
+
 export const paginateCredential = async (params) => {
 
     const { data } = await Axios.get(`/v1/credentials`, {

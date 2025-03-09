@@ -1,6 +1,6 @@
 //@ts-check
 
-import { INVALID_INPUT_ERR_CODE, NOT_FOUND_ERR_CODE, NOT_FOUND_ERR_MESSAGE } from "@/global/utils/constant";
+import { INVALID_INPUT_ERR_CODE, NOT_FOUND_ERR_CODE, NOT_FOUND_ERR_MESSAGE, USERNAME_PASSWORD_CREDENTIAL_TYPE } from "@/global/utils/constant";
 import { createSlug, HttpError, sanitizeObject } from "@/global/utils/functions";
 import { Validator } from "node-input-validator";
 import credentialModel from "./credential.model";
@@ -21,10 +21,27 @@ const generateSlug = async (name, count = 0) => {
     return slug
 }
 
+const generateUsernamePasswordSecret = async (params) => {
+    const v = new Validator(params, {
+        username: "required|string",
+        password: "required|string",
+    });
+
+    let match = await v.check();
+    if (!match) {
+        throw HttpError(INVALID_INPUT_ERR_CODE, v.errors);
+    }
+
+    return encrypt(JSON.stringify({
+        username: params?.username,
+        password: params?.password
+    }))
+}
+
 export const createCredential = async (params) => {
     const v = new Validator(params, {
+        type: "required|string",
         name: "required|string",
-        secret: "required|string",
     });
 
     let match = await v.check();
@@ -35,14 +52,18 @@ export const createCredential = async (params) => {
     const slug = await generateSlug(params?.name)
 
     let payload = sanitizeObject({
+        type: striptags(params?.type),
         name: striptags(params?.name),
         slug,
-        secret: encrypt(params?.secret)
     })
-    
+
+    if (payload?.type === USERNAME_PASSWORD_CREDENTIAL_TYPE) {
+        payload.secret = await generateUsernamePasswordSecret(params)
+    } else {
+        throw HttpError(INVALID_INPUT_ERR_CODE, `unknown type`)
+    }
 
     let raw = await credentialModel.create(payload)
-
     return raw?.toJSON()
 }
 

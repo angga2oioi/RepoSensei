@@ -1,12 +1,13 @@
 //@ts-check
 import React from "react";
-import { PasswordInput, Textarea, TextInput } from "@mantine/core"
+import { TextInput } from "@mantine/core"
 import { useForm } from '@mantine/form';
 import { PrimaryButton } from "../../buttons/PrimaryButton";
-import SelectCredentialType from "../../selects/SelectCredentialType";
-import { USERNAME_PASSWORD_CREDENTIAL_TYPE } from "@/global/utils/constant";
+import { BITBUCKET_REPO_TYPE } from "@/global/utils/constant";
+import SelectRepositoryType from "../../selects/SelectRepositoryType";
+import SelectCredential from "../../selects/SelectCredential";
 
-const FormCredential = ({ isLoading, onSubmit }) => {
+const FormRepository = ({ isLoading, onSubmit }) => {
     const [formType, setFormType] = React.useState("")
 
     const form = useForm({
@@ -14,12 +15,13 @@ const FormCredential = ({ isLoading, onSubmit }) => {
         initialValues: {
             type: "",
             name: "",
-            username: "",
-            password: ""
+            secret: "",
+            gitUrl: "",
         },
         validate: {
             type: (value) => value ? null : 'type cannot empty',
             name: (value) => value ? null : 'name cannot empty',
+            secret: (value) => value ? null : 'name cannot empty',
         },
         onValuesChange: (values) => {
             setFormType(values?.type)
@@ -32,32 +34,33 @@ const FormCredential = ({ isLoading, onSubmit }) => {
                 className="w-full space-y-2"
                 onSubmit={form.onSubmit(onSubmit)}
             >
-                <SelectCredentialType
+                <TextInput
+                    withAsterisk
+                    label="Enter connection Name"
+                    key={form.key('name')}
+                    {...form.getInputProps('name')}
+                />
+                <SelectRepositoryType
                     withAsterisk
                     label={`Select type`}
                     key={form.key('type')}
                     {...form.getInputProps('type')}
                 />
-                <TextInput
+                <SelectCredential
                     withAsterisk
-                    label="name"
-                    key={form.key('name')}
-                    {...form.getInputProps('name')}
+                    label={`Select Secret`}
+                    key={form.key('secret')}
+                    {...form.getInputProps('secret')}
                 />
+
                 {
-                    formType === USERNAME_PASSWORD_CREDENTIAL_TYPE &&
+                    formType === BITBUCKET_REPO_TYPE &&
                     <>
                         <TextInput
                             withAsterisk
-                            label="Username"
-                            key={form.key('username')}
-                            {...form.getInputProps('username')}
-                        />
-                        <PasswordInput
-                            withAsterisk
-                            label="Password"
-                            key={form.key('password')}
-                            {...form.getInputProps('password')}
+                            label="Bitbucket Git URL"
+                            key={form.key('gitUrl')}
+                            {...form.getInputProps('gitUrl')}
                         />
                     </>
                 }
@@ -72,4 +75,4 @@ const FormCredential = ({ isLoading, onSubmit }) => {
     )
 }
 
-export default FormCredential
+export default FormRepository

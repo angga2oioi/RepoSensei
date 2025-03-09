@@ -13,7 +13,8 @@ const AccountSchema = new mongoose.Schema(
             lowercase: true,
             trim: true,
             index: true,
-            unique: true
+            unique: true,
+            maxLength:32
         },
         password: {
             type: String,
