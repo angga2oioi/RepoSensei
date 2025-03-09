@@ -5,36 +5,7 @@ import { createSlug, HttpError, sanitizeObject } from "@/global/utils/functions"
 import { Validator } from "node-input-validator";
 import credentialModel from "./credential.model";
 import striptags from "striptags";
-import crypto from "crypto"
-const algorithm = "aes-256-ctr";
-const secretKey = process?.env?.CRYPTO_SECRET;
-
-const encrypt = (text) => {
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(algorithm, secretKey, iv);
-
-    const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
-
-    return {
-        iv: iv.toString("hex"),
-        content: encrypted.toString("hex"),
-    };
-};
-
-const decrypt = (hash) => {
-    const decipher = crypto.createDecipheriv(
-        algorithm,
-        secretKey,
-        Buffer.from(hash.iv, "hex")
-    );
-
-    const decrpyted = Buffer.concat([
-        decipher.update(Buffer.from(hash.content, "hex")),
-        decipher.final(),
-    ]);
-
-    return decrpyted.toString();
-};
+import { decrypt, encrypt } from "@/server/utils/encryption";
 
 const generateSlug = async (name, count = 0) => {
 

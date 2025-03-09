@@ -32,6 +32,7 @@ const AccountSchema = new mongoose.Schema(
                 ],
                 message: "{VALUE} is not supported",
             },
+            required: true,
             index: true,
         },
     },

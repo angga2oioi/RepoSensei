@@ -24,6 +24,9 @@ export const CSRF_TOKEN_COOKIE_NAME = "CSRF_TOKEN";
 
 export const STRONG_PASSWORD_SCORE="Strong"
 
+export const AI_CREDENTIAL_SETTINGS="AI_CREDENTIAL"
+export const EMAIL_CREDENTIAL_SETTINGS="EMAIL_CREDENTIAL"
+
 export const COOKIE_OPTIONS = {
     httpOnly: true,
     maxAge: 60 * 60,
