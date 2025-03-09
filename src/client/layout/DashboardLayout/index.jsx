@@ -2,6 +2,7 @@
 "use client"
 import React from "react";
 import Header from "./Header";
+import Sidebar from "./Sidebar";
 
 const DashboardLayoutViews = ({ children }) => {
     return (
@@ -9,7 +10,10 @@ const DashboardLayoutViews = ({ children }) => {
             <div className="w-full h-full space-y-3">
                 <Header />
                 <div className="px-3">
-                    {children}
+                    <Sidebar />
+                    <>
+                        {children}
+                    </>
                 </div>
             </div>
         </>

@@ -14,7 +14,7 @@ const LogoutViews = ({ }) => {
         try{
 
             await accountLogout()
-            router.replace("/")
+            window.location.href = "/"
 
         }catch(e){
             ErrorMessage(e)
