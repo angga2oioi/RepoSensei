@@ -14,7 +14,7 @@ export const updateSettings = async (payload) => {
 
 }
 
-export const getSettings = async () => {
+export const listSettings = async () => {
 
     const { data } = await Axios.get(`/v1/settings`)
     return data.data

@@ -1,6 +1,6 @@
 //@ts-check
 
-import { AI_CREDENTIAL_SETTINGS, EMAIL_CREDENTIAL_SETTINGS, INVALID_INPUT_ERR_CODE } from "@/global/utils/constant";
+import { AI_CREDENTIAL_SETTINGS, AI_MODEL_SETTINGS, EMAIL_CREDENTIAL_SETTINGS, INVALID_INPUT_ERR_CODE } from "@/global/utils/constant";
 import { HttpError, sanitizeObject } from "@/global/utils/functions";
 import { decrypt, encrypt } from "@/server/utils/encryption";
 import { Validator } from "node-input-validator";
@@ -30,10 +30,11 @@ export const updateSetting = async (params) => {
     return raw?.toJSON()
 }
 
-export const getSettings = async () => {
+export const listSettings = async () => {
 
     let list = await settingsModel.find({})
     let keys = [
+        AI_MODEL_SETTINGS,
         AI_CREDENTIAL_SETTINGS,
         EMAIL_CREDENTIAL_SETTINGS
     ]
@@ -47,5 +48,16 @@ export const getSettings = async () => {
 
 
     return res
+
+}
+
+export const getSettings = async (key) => {
+
+    let res = await settingsModel.findOne({ key })
+
+    return {
+        key,
+        value: decrypt(res?.value)
+    }
 
 }

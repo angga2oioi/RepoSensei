@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { validateCookies } from "@/server/module/auth/auth.service";
 import { canIManage, } from "@/server/module/account/account.service";
-import { getSettings, updateSetting } from "@/server/module/settings/setting.service";
+import { listSettings, updateSetting } from "@/server/module/settings/setting.service";
 
 export async function GET(request, { params }) {
     try {
@@ -21,7 +21,7 @@ export async function GET(request, { params }) {
             throw HttpError(NO_ACCESS_ERR_CODE, NO_ACCESS_ERR_MESSAGE)
         }
 
-        let data = await getSettings()
+        let data = await listSettings()
 
         return NextResponse.json({
             error: SUCCESS_ERR_CODE,

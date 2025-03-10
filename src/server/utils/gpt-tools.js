@@ -1,22 +1,22 @@
 //@ts-check
 
-import { AI_CREDENTIAL_SETTINGS, INVALID_INPUT_ERR_CODE } from "@/global/utils/constant"
-import { HttpError, strToJSObject } from "@/global/utils/functions"
+import { AI_CREDENTIAL_SETTINGS, AI_MODEL_SETTINGS } from "@/global/utils/constant"
+import { strToJSObject } from "@/global/utils/functions"
 import OpenAI from "openai"
-import settingsModel from "../module/settings/settings.model"
 import { decrypt } from "./encryption"
+import { getSettings } from "../module/settings/setting.service"
 
 const execOpenAI = async (payload) => {
 
-    let setting = await settingsModel.findOne({
-        key: AI_CREDENTIAL_SETTINGS
-    })
+    let { value: secret } = await getSettings(AI_CREDENTIAL_SETTINGS)
 
-    const credential = JSON.parse(decrypt(setting?.value))
+    const credential = JSON.parse(secret)
 
     const openai = new OpenAI(credential);
 
-    payload.model = credential?.model
+    const { value: model } = await getSettings(AI_MODEL_SETTINGS)
+
+    payload.model = model
 
     const data = await openai.chat.completions.create(payload);
 

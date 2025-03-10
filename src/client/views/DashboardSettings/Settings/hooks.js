@@ -1,10 +1,7 @@
 //@ts-check
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
 import useErrorMessage from "@/client/hooks/useErrorMessage";
-import { useConfirmDialog } from "@/client/hooks/useConfirmDialog";
-import { paginateCredential, removeCredential } from "@/client/api/credential";
-import { getSettings, updateSettings } from "@/client/api/settings";
+import { listSettings, updateSettings } from "@/client/api/settings";
 
 export const useSettings = () => {
     const ErrorMessage = useErrorMessage();
@@ -14,7 +11,7 @@ export const useSettings = () => {
 
     const fetchData = useCallback(async () => {
         try {
-            const data = await getSettings();
+            const data = await listSettings();
             setSettings(data);
         } catch (e) {
             ErrorMessage(e);
