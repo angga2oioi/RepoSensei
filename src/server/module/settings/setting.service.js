@@ -1,6 +1,6 @@
 //@ts-check
 
-import { AI_CREDENTIAL_SETTINGS, AI_MODEL_SETTINGS, EMAIL_CREDENTIAL_SETTINGS, INVALID_INPUT_ERR_CODE } from "@/global/utils/constant";
+import { AI_CREDENTIAL_SETTINGS, AI_MODEL_SETTINGS, AI_PROMPT_SETTINGS, EMAIL_CREDENTIAL_SETTINGS, INVALID_INPUT_ERR_CODE } from "@/global/utils/constant";
 import { HttpError, sanitizeObject } from "@/global/utils/functions";
 import { decrypt, encrypt } from "@/server/utils/encryption";
 import { Validator } from "node-input-validator";
@@ -36,6 +36,7 @@ export const listSettings = async () => {
     let keys = [
         AI_MODEL_SETTINGS,
         AI_CREDENTIAL_SETTINGS,
+        AI_PROMPT_SETTINGS,
         EMAIL_CREDENTIAL_SETTINGS
     ]
 

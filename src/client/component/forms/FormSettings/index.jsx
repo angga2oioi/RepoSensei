@@ -1,7 +1,7 @@
 //@ts-check
 import React from "react";
 import { Textarea, TextInput } from "@mantine/core"
-import { AI_CREDENTIAL_SETTINGS, AI_MODEL_SETTINGS } from "@/global/utils/constant";
+import { AI_CREDENTIAL_SETTINGS, AI_MODEL_SETTINGS, AI_PROMPT_SETTINGS } from "@/global/utils/constant";
 import { PrimaryButton } from "../../buttons/PrimaryButton";
 
 const FormSettings = ({ initialValues = null, isLoading, onSubmit }) => {
@@ -37,6 +37,20 @@ const FormSettings = ({ initialValues = null, isLoading, onSubmit }) => {
                                 withAsterisk
                                 rows={6}
                                 label="AI Credential"
+                                value={n?.value}
+                                onChange={(e) => {
+                                    let f = [...form]
+                                    f[i].value = e?.currentTarget?.value
+                                    setForm(f)
+                                }}
+                            />
+                        }
+                        {
+                            n?.key === AI_PROMPT_SETTINGS &&
+                            <Textarea
+                                withAsterisk
+                                rows={6}
+                                label="AI Prompt"
                                 value={n?.value}
                                 onChange={(e) => {
                                     let f = [...form]

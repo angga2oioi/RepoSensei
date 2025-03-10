@@ -2,9 +2,11 @@
 import { useState, useEffect, useCallback } from "react";
 import useErrorMessage from "@/client/hooks/useErrorMessage";
 import { listSettings, updateSettings } from "@/client/api/settings";
+import useSuccessMessage from "@/client/hooks/useSuccessMessage";
 
 export const useSettings = () => {
     const ErrorMessage = useErrorMessage();
+    const SuccessMessage = useSuccessMessage()
 
     const [settings, setSettings] = useState([]);
     const [isLoading, setIsLoading] = useState(false)
@@ -30,6 +32,7 @@ export const useSettings = () => {
                     return updateSettings(n)
                 }
             }))
+            SuccessMessage(`Successfully updated`)
         } catch (e) {
             ErrorMessage(e)
         } finally {

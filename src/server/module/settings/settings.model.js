@@ -1,5 +1,5 @@
 //@ts-check
-import { AI_CREDENTIAL_SETTINGS, EMAIL_CREDENTIAL_SETTINGS } from "@/global/utils/constant";
+import { AI_CREDENTIAL_SETTINGS, AI_MODEL_SETTINGS, AI_PROMPT_SETTINGS, EMAIL_CREDENTIAL_SETTINGS } from "@/global/utils/constant";
 import mongoose from "../../utils/mongoose";
 import { toJSON, paginate, aggregatePaginate } from "../../utils/mongoose/plugins";
 
@@ -12,6 +12,8 @@ const SettingsSchema = new mongoose.Schema(
             required: true,
             enum: {
                 values: [
+                    AI_MODEL_SETTINGS,
+                    AI_PROMPT_SETTINGS,
                     AI_CREDENTIAL_SETTINGS,
                     EMAIL_CREDENTIAL_SETTINGS,
                 ],

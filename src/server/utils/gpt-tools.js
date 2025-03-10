@@ -1,6 +1,6 @@
 //@ts-check
 
-import { AI_CREDENTIAL_SETTINGS, AI_MODEL_SETTINGS } from "@/global/utils/constant"
+import { AI_CREDENTIAL_SETTINGS, AI_MODEL_SETTINGS, AI_PROMPT_SETTINGS } from "@/global/utils/constant"
 import { strToJSObject } from "@/global/utils/functions"
 import OpenAI from "openai"
 import { decrypt } from "./encryption"
@@ -25,26 +25,15 @@ const execOpenAI = async (payload) => {
 
 export const gptAnalyzeFile = async (rawFileData) => {
 
-    let prompt = `Below are the contents of a file that are part of a Pull Request. Please review the file and only reject if :
-1. There is clear typo. 
-2. There is a credential exposure.
-3. There is a scaling issue like processing millions of requests in a single unoptimized promise.
-If you failed to find those criteria, please just accept the PR.
-Please provide feedback in JSON format only, without including additional code in your response, to ensure easier parsing.
-Schema for the response:
-{
-    "comment": "Your feedback here",
-    "status": "ACCEPT or REJECT"
-}
-Here is the file:
+    const { value: prompt } = await getSettings(AI_PROMPT_SETTINGS)
 
-${rawFileData}
-`
+    let content = prompt + rawFileData;
+    
     const reviewResult = await execOpenAI({
         messages: [
             { role: "system", content: "You are an expert code reviewer." },
             {
-                role: "user", content: prompt
+                role: "user", content
             }
         ]
     })

@@ -116,6 +116,7 @@ export const analyzeBitbucketPullRequest = async (params, pr) => {
                 status: res?.status
             })
         }
+
     }
 
     return results
