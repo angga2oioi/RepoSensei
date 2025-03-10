@@ -2,13 +2,12 @@
 
 ### AI-Powered PR Review & Approval
 
-RepoSensei is an automated pull request (PR) reviewer and approver for git repositories. It analyzes code changes using AI and applies custom approval rules to streamline your development workflow.
+RepoSensei is an automated pull request (PR) reviewer and approver for git repositories. It analyzes code changes using AI to streamline your development workflow.
 
 ---
 
 ## 🚀 Features
 - **Automated PR Analysis** – Uses AI to review code changes and decide whether to approve or request changes.
-- **Custom Approval Rules** – Configure rules for auto-approval, merge conditions, and notifications.
 - **Bitbucket Integration** – Monitors PRs using webhooks and fetches changed files via the Bitbucket API.
 - **Dashboard UI** – Web interface (Next.js) for configuring repositories, authentication, and monitoring PR status.
 - **Secure Authentication** – Stores Bitbucket credentials securely.
@@ -43,23 +42,11 @@ MONGO_DB_SERVER=
   npm run dev
 ```
 
----
-
-## 🔗 Bitbucket Webhook Setup
-1. Go to your Bitbucket repository settings.
-2. Navigate to **Webhooks**.
-3. Click **Add Webhook** and enter:
-   - **URL**: `https://your-app.com/api/webhook`
-   - **Events**: `pullrequest:created`, `pullrequest:updated`
-4. Save the webhook.
-
----
-
 ## 📌 How It Works
 1. **PR Created** → Webhook triggers RepoSensei.
 2. **Fetch Changed Files** → Calls Bitbucket API to retrieve modified files.
 3. **AI Code Review** → Sends code snippets to OpenAI for analysis.
-4. **Auto-Approval Logic** → Based on AI feedback and custom rules.
+4. **Auto-Approval Logic** → Using AI.
 5. **Approve/Merge PR** → Uses Bitbucket API to approve and optionally merge the PR.
 6. **Dashboard Logs** → View PR status and AI decisions.
 
