@@ -13,7 +13,6 @@ import { gptAnalyzeFile } from "@/server/utils/gpt-tools";
 
 export const connectBitbucketRepository = async (params) => {
     const v = new Validator(params, {
-        name: "required|string",
         secret: "required|string",
         protocol: "required|string",
         hostname: "required|string",
@@ -42,13 +41,14 @@ export const connectBitbucketRepository = async (params) => {
     try {
 
         const item = params?.gitUrl?.split("/")
-
+        const workspace = striptags(item?.[3])
+        const repo_slug = striptags(item?.[4])?.replace(".git", "")
         let payload = {
             type: striptags(params?.type),
-            name: striptags(params?.name),
+            name: workspace + "/" + repo_slug,
             connection: {
-                workspace: striptags(item?.[3]),
-                repo_slug: striptags(item?.[4])?.replace(".git", "")
+                workspace,
+                repo_slug
             },
             secret: credential?._id
         }

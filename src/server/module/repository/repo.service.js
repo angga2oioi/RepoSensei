@@ -50,13 +50,13 @@ export const removeRepository = async (id) => {
     const secret = JSON.parse(decrypt(credential?.secret))
 
     if (raw?.type === BITBUCKET_REPO_TYPE) {
-        await removeBitbucketWebhook({
+        removeBitbucketWebhook({
             hookId: raw?.connection?.hookId,
             workspace: raw?.connection?.workspace,
             repo_slug: raw?.connection?.repo_slug,
             username: secret?.username,
             password: secret?.password,
-        })
+        }).catch((e) => console.log(e))
     }
 
     await repoModel.findByIdAndDelete(id)

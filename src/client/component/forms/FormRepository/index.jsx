@@ -14,13 +14,11 @@ const FormRepository = ({ isLoading, onSubmit }) => {
         mode: 'uncontrolled',
         initialValues: {
             type: "",
-            name: "",
             secret: "",
             gitUrl: "",
         },
         validate: {
             type: (value) => value ? null : 'type cannot empty',
-            name: (value) => value ? null : 'name cannot empty',
             secret: (value) => value ? null : 'name cannot empty',
         },
         onValuesChange: (values) => {
@@ -34,12 +32,6 @@ const FormRepository = ({ isLoading, onSubmit }) => {
                 className="w-full space-y-2"
                 onSubmit={form.onSubmit(onSubmit)}
             >
-                <TextInput
-                    withAsterisk
-                    label="Enter connection Name"
-                    key={form.key('name')}
-                    {...form.getInputProps('name')}
-                />
                 <SelectRepositoryType
                     withAsterisk
                     label={`Select type`}
