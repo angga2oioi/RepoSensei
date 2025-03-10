@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import useErrorMessage from "@/client/hooks/useErrorMessage";
 import { useConfirmDialog } from "@/client/hooks/useConfirmDialog";
-import { paginateRepository, removeRepository } from "@/client/api/repositories";
+import { analyzeRepository, paginateRepository, removeRepository } from "@/client/api/repositories";
 
 export const useRepositories = () => {
     const searchParams = useSearchParams();
@@ -49,10 +49,20 @@ export const useRepositories = () => {
         openConfirmDialog(params);
     };
 
+    const handleAnalyze = async (id) => {
+
+        try {
+            await analyzeRepository(id);
+        } catch (e) {
+            ErrorMessage(e);
+        }
+    };
+
     return {
         list,
         repositories,
         fetchData,
+        handleAnalyze,
         handleRemove,
         ConfirmDialogComponent
     };

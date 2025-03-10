@@ -38,7 +38,6 @@ export const getSettings = async () => {
         EMAIL_CREDENTIAL_SETTINGS
     ]
 
-    console.log(list)
     let res = keys?.map((n) => {
         return {
             key: n,

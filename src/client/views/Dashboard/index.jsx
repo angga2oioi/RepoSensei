@@ -8,12 +8,15 @@ import { Tooltip } from "@mantine/core";
 import { DangerButton } from "@/client/component/buttons/DangerButton";
 import { FaTrash } from "react-icons/fa";
 import PaginationBuilder from "@/client/component/elements/Paginations";
+import { SecondaryButton } from "@/client/component/buttons/SecondaryButton";
+import { IoReload } from "react-icons/io5";
 const DashboardViews = () => {
 
     const {
         list,
         repositories,
         handleRemove,
+        handleAnalyze,
         ConfirmDialogComponent
     } = useRepositories();
 
@@ -21,7 +24,13 @@ const DashboardViews = () => {
         name: n?.name,
         action:
             <>
+                <Tooltip label={`Check Now`}>
+                    <SecondaryButton onClick={() => handleAnalyze(n?.id)}>
+                        <IoReload />
+                    </SecondaryButton>
+                </Tooltip>
                 <Tooltip label="Remove">
+
                     <DangerButton onClick={() => handleRemove(n?.id)}>
                         <FaTrash />
                     </DangerButton>

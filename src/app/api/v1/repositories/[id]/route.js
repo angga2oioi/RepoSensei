@@ -6,7 +6,6 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { validateCookies } from "@/server/module/auth/auth.service";
 import { canIManage } from "@/server/module/account/account.service";
-import { findCredentialById, removeCredential } from "@/server/module/credential/credential.service";
 import { removeRepository } from "@/server/module/repository/repo.service";
 
 
@@ -35,6 +34,8 @@ export async function DELETE(request, { params }) {
 
 
     } catch (e) {
+        console.log(e)
+        console.log(e?.response)
         return NextResponse.json(parseError(e), { status: e?.error || 400 });
     }
 }

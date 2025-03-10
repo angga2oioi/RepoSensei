@@ -6,34 +6,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { validateCookies } from "@/server/module/auth/auth.service";
 import { canIManage } from "@/server/module/account/account.service";
-import { findCredentialById, removeCredential } from "@/server/module/credential/credential.service";
-
-export async function GET(request, { params }) {
-    try {
-
-        const { account, token } = await validateCookies(cookies);
-        if (!token) {
-            throw HttpError(NO_ACCESS_ERR_CODE, NO_ACCESS_ERR_MESSAGE);
-        }
-
-        const canManage = await canIManage(account?.id, )
-        if (!canManage) {
-            throw HttpError(NO_ACCESS_ERR_CODE, NO_ACCESS_ERR_MESSAGE)
-        }
-
-        let data = await findCredentialById(params?.id)
-
-        return NextResponse.json({
-            error: SUCCESS_ERR_CODE,
-            message: SUCCESS_ERR_MESSAGE,
-            data
-        });
-
-
-    } catch (e) {
-        return NextResponse.json(parseError(e), { status: e?.error || 400 });
-    }
-}
+import {  removeCredential } from "@/server/module/credential/credential.service";
 
 export async function DELETE(request, { params }) {
     try {

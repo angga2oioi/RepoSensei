@@ -99,3 +99,28 @@ export const createSlug = (string) => {
 export const delay = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export const strToJSObject = (text) => {
+    if (typeof text !== "string") return {};
+
+    text = text.trim();
+
+    try {
+        return JSON.parse(text);
+    } catch (e) {
+        let s1 = text?.split(`{`);
+        s1?.shift();
+
+        let s2 = s1?.join("{").split("}");
+        s2.pop();
+
+        let res = "{" + s2?.join("}") + "}";
+        
+        try {
+            return JSON.parse(res);
+        } catch {
+
+            return {}; // If still invalid, return null instead of throwing an error
+        }
+    }
+};

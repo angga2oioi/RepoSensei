@@ -29,3 +29,10 @@ export const removeRepository = async (id) => {
     return data.data
 
 }
+
+export const analyzeRepository = async (id) => {
+
+    const { data } = await Axios.patch(`/v1/repositories/${id}/analyze`)
+    return data.data
+
+}

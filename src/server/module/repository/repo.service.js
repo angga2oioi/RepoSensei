@@ -5,90 +5,12 @@ import { BITBUCKET_REPO_TYPE, INVALID_INPUT_ERR_CODE, NOT_FOUND_ERR_CODE, NOT_FO
 import { HttpError } from "@/global/utils/functions";
 import { Validator } from "node-input-validator";
 import credentialModel from "../credential/credential.model";
-import striptags from "striptags";
 import repoModel from "./repo.model";
-import { createBitbucketWebhook, removeBitbucketWebhook } from "@/server/utils/bitbucket";
+import { listAllBitbucketPullRequests, removeBitbucketWebhook } from "@/server/utils/bitbucket";
 import { decrypt } from "@/server/utils/encryption";
-import mongoose from "mongoose";
+import { connectBitbucketRepository, handleBitbucketWebhook } from "./bitbucket.repository.service";
 
-const connectBitbucketRepository = async (params) => {
-    const v = new Validator(params, {
-        name: "required|string",
-        secret: "required|string",
-        protocol: "required|string",
-        hostname: "required|string",
-        gitUrl: "required|string",
-    });
 
-    let match = await v.check();
-    if (!match) {
-        throw HttpError(INVALID_INPUT_ERR_CODE, v.errors);
-    }
-
-    const credential = await credentialModel.findById(params?.secret)
-    if (!credential || credential?.type !== USERNAME_PASSWORD_CREDENTIAL_TYPE) {
-        throw HttpError(INVALID_INPUT_ERR_CODE, `credential not found`)
-    }
-
-    if (!params?.gitUrl?.includes("@bitbucket.org")) {
-        throw HttpError(INVALID_INPUT_ERR_CODE, `not a bitbucket url`)
-    }
-
-    const secret = JSON.parse(decrypt(credential?.secret))
-
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
-    try {
-
-        const item = params?.gitUrl?.split("/")
-
-        let payload = {
-            type: striptags(params?.type),
-            name: striptags(params?.name),
-            connection: {
-                workspace: striptags(item?.[3]),
-                repo_slug: striptags(item?.[4])
-            },
-            secret: credential?._id
-        }
-
-        const test = await repoModel.findOne({
-            type: payload?.type,
-            "connection.workspace": payload.connection.workspace,
-            "connection.repo_slug": payload.connection.repo_slug
-
-        })
-
-        if (test) {
-            throw HttpError(INVALID_INPUT_ERR_CODE, `Already connected`)
-        }
-
-        const raw = await repoModel.create([payload], { session })
-
-        const { uuid } = await createBitbucketWebhook({
-            webhookUrl: `${params?.protocol}//${params?.hostname}/api/v1/repo/${raw?.[0]?._id?.toString()}/webhook`,
-            workspace: payload?.connection?.workspace,
-            repo_slug: payload?.connection?.repo_slug,
-            username: secret?.username,
-            password: secret?.password,
-        })
-
-        await repoModel.findByIdAndUpdate(raw?.[0]?._id?.toString(), {
-            $set: {
-                "connection.hookId": uuid
-            }
-        }, { session })
-
-        await session.commitTransaction()
-        return raw?.[0]?.toJSON()
-
-    } catch (e) {
-        await session.abortTransaction();
-        throw e;
-    }
-
-}
 
 export const connectRepository = async (params) => {
 
@@ -102,7 +24,11 @@ export const connectRepository = async (params) => {
     }
 
     if (params?.type === BITBUCKET_REPO_TYPE) {
-        return await connectBitbucketRepository(params)
+        let res = await connectBitbucketRepository(params)
+        manuallyAnalyzeRepo(res?.id?.toString())
+            .catch((e) => console.log(e))
+
+        return res
     }
 
     throw HttpError(INVALID_INPUT_ERR_CODE, `Unknown type`)
@@ -123,13 +49,15 @@ export const removeRepository = async (id) => {
 
     const secret = JSON.parse(decrypt(credential?.secret))
 
-    await removeBitbucketWebhook({
-        hookId: raw?.connection?.hookId,
-        workspace: raw?.connection?.workspace,
-        repo_slug: raw?.connection?.repo_slug,
-        username: secret?.username,
-        password: secret?.password,
-    })
+    if (raw?.type === BITBUCKET_REPO_TYPE) {
+        await removeBitbucketWebhook({
+            hookId: raw?.connection?.hookId,
+            workspace: raw?.connection?.workspace,
+            repo_slug: raw?.connection?.repo_slug,
+            username: secret?.username,
+            password: secret?.password,
+        })
+    }
 
     await repoModel.findByIdAndDelete(id)
 
@@ -154,7 +82,6 @@ const buildRepositorySearchQuery = (params) => {
     return query
 }
 
-
 export const paginateRepository = async (query, sortBy = "createdAt:desc", limit = 10, page = 1) => {
 
     let queryParams = buildRepositorySearchQuery(query)
@@ -168,4 +95,58 @@ export const paginateRepository = async (query, sortBy = "createdAt:desc", limit
 
     return list
 
+}
+
+
+export const handleWebhook = async (id, prId) => {
+
+    if (!prId) {
+        throw HttpError(NOT_FOUND_ERR_CODE, NOT_FOUND_ERR_MESSAGE)
+    }
+
+    const repo = await repoModel.findById(id)
+    if (!repo) {
+        throw HttpError(NOT_FOUND_ERR_CODE, NOT_FOUND_ERR_MESSAGE)
+    }
+
+    if (repo?.type === BITBUCKET_REPO_TYPE) {
+        await handleBitbucketWebhook(repo, prId)
+    }
+
+    return null
+
+}
+
+export const manuallyAnalyzeRepo = async (id) => {
+    let repo = await repoModel.findById(id)
+    if (!repo) {
+        return null
+    }
+
+    const credential = await credentialModel.findById(repo?.secret)
+    if (!credential) {
+        throw HttpError(INVALID_INPUT_ERR_CODE, `credential not found`)
+    }
+
+    const secret = JSON.parse(decrypt(credential?.secret))
+
+    if (repo?.type === BITBUCKET_REPO_TYPE) {
+        if (credential?.type !== USERNAME_PASSWORD_CREDENTIAL_TYPE) {
+            return null
+        }
+
+        let params = {
+            workspace: repo?.connection?.workspace,
+            repo_slug: repo?.connection?.repo_slug,
+            username: secret?.username,
+            password: secret?.password,
+        }
+
+        let prList = await listAllBitbucketPullRequests(params)
+        for (const pr of prList) {
+            await handleWebhook(id, pr?.id)
+        }
+    }
+
+    return null
 }
