@@ -1,6 +1,6 @@
 //@ts-check
 
-import { MANAGE_CREDENTIALS_ROLES, NO_ACCESS_ERR_CODE, NO_ACCESS_ERR_MESSAGE, SUCCESS_ERR_CODE, SUCCESS_ERR_MESSAGE } from "@/global/utils/constant";
+import { MANAGE_CREDENTIALS_ROLES, MANAGE_SETTINGS_ROLES, NO_ACCESS_ERR_CODE, NO_ACCESS_ERR_MESSAGE, SUCCESS_ERR_CODE, SUCCESS_ERR_MESSAGE } from "@/global/utils/constant";
 import { HttpError, parseError } from "@/global/utils/functions";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -16,7 +16,7 @@ export async function GET(request, { params }) {
             throw HttpError(NO_ACCESS_ERR_CODE, NO_ACCESS_ERR_MESSAGE);
         }
 
-        const canManage = await canIManage(account?.id, MANAGE_CREDENTIALS_ROLES)
+        const canManage = await canIManage(account?.id, MANAGE_SETTINGS_ROLES)
         if (!canManage) {
             throw HttpError(NO_ACCESS_ERR_CODE, NO_ACCESS_ERR_MESSAGE)
         }
@@ -44,7 +44,7 @@ export async function POST(request, { params }) {
             throw HttpError(NO_ACCESS_ERR_CODE, NO_ACCESS_ERR_MESSAGE);
         }
 
-        const canManage = await canIManage(account?.id, MANAGE_CREDENTIALS_ROLES)
+        const canManage = await canIManage(account?.id, MANAGE_SETTINGS_ROLES)
         if (!canManage) {
             throw HttpError(NO_ACCESS_ERR_CODE, NO_ACCESS_ERR_MESSAGE)
         }
