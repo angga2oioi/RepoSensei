@@ -89,10 +89,15 @@ export const connectBitbucketRepository = async (params) => {
 
 }
 
-export const analyzeBitbucketPullRequest = async (params, pr) => {
+export const analyzeBitbucketPullRequest = async (params, url) => {
+    let results = []
+
+    if (!url) {
+        return results
+    }
     const allowedExtensions = [".js", ".jsx", ".ts", ".tsx", ".rs", ".py", ".java", ".go", ".rb", ".cpp", ".cs"];
 
-    let { values } = await execBitbucketGet({ ...params, url: pr?.links?.diffstat?.href })
+    let { values } = await execBitbucketGet({ ...params, url })
 
     let files = values?.filter((n) => {
         let filePath = n?.new?.path || n?.old?.path; // Get the file path
@@ -104,8 +109,12 @@ export const analyzeBitbucketPullRequest = async (params, pr) => {
         }
     });
 
-    let results = []
+    
     for (const file of files) {
+        if (!file?.url) {
+            continue;
+        }
+        
         let rawFileData = await downloadFileFromBitbucketRepo({ ...params, url: file?.url })
         let res = await gptAnalyzeFile(rawFileData)
 
@@ -139,19 +148,21 @@ export const handleBitbucketWebhook = async (repo, prId) => {
 
     let pr = await getBitbucketPullRequest(params)
 
-    let results = await analyzeBitbucketPullRequest(params, pr)
+    let results = await analyzeBitbucketPullRequest(params, pr?.links?.diffstat?.href)
 
     const rejected = results?.filter((res) => res?.status !== "ACCEPT")
     if (rejected?.length > 0) {
-        let comment = rejected?.map((n) => {
+        let comments = rejected?.map((n) => {
             return n?.comment
-        })?.join("\n")
-
-        await rejectBitbucketPR({
-            ...params,
-            prId,
-            comment
         })
+
+        for (const comment of comments) {
+            await rejectBitbucketPR({
+                ...params,
+                prId,
+                comment
+            })
+        }
 
         return null
     }

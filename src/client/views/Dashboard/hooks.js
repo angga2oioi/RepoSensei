@@ -13,15 +13,19 @@ export const useRepositories = () => {
 
     const [list, setList] = useState({});
     const [repositories, setRepositories] = useState([]);
+    const [isLoading, setIsLoading] = useState(false)
 
     const fetchData = useCallback(async () => {
         try {
+            setIsLoading(true)
             const query = Object.fromEntries(searchParams.entries());
             const data = await paginateRepository(query);
             setList(data);
             setRepositories(data?.results || []);
         } catch (e) {
             ErrorMessage(e);
+        } finally {
+            setIsLoading(false)
         }
     }, [searchParams, ErrorMessage]);
 
@@ -38,10 +42,13 @@ export const useRepositories = () => {
             cancelLabel: "Cancel",
             onConfirm: async () => {
                 try {
+                    setIsLoading(true)
                     await removeRepository(id);
                     fetchData();
                 } catch (e) {
                     ErrorMessage(e);
+                } finally {
+                    setIsLoading(false)
                 }
             }
         }
@@ -52,14 +59,18 @@ export const useRepositories = () => {
     const handleAnalyze = async (id) => {
 
         try {
+            setIsLoading(true)
             await analyzeRepository(id);
         } catch (e) {
             ErrorMessage(e);
+        } finally {
+            setIsLoading(false)
         }
     };
 
     return {
         list,
+        isLoading,
         repositories,
         fetchData,
         handleAnalyze,
