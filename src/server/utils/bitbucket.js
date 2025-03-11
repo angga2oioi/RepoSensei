@@ -18,10 +18,10 @@ const generateHeaders = (params) => {
 export const createBitbucketWebhook = async (params) => {
     const v = new Validator(params, {
         webhookUrl: "required|string",
-        workspace: "required|string",
-        repo_slug: "required|string",
-        username: "required|string",
-        password: "required|string",
+        "connection.workspace": "required|string",
+        "connection.repo_slug": "required|string",
+        "secret.username": "required|string",
+        "secret.password": "required|string",
     });
 
     let match = await v.check();
@@ -29,7 +29,7 @@ export const createBitbucketWebhook = async (params) => {
         throw HttpError(INVALID_INPUT_ERR_CODE, v.errors);
     }
 
-    let url = `/${params?.workspace}/${params?.repo_slug}/hooks`
+    let url = `/${params?.connection?.workspace}/${params?.connection?.repo_slug}/hooks`
 
     let payload = {
         description: "Webhook for PR",
@@ -39,7 +39,7 @@ export const createBitbucketWebhook = async (params) => {
     }
 
     const { data } = await Axios.post(url, payload, {
-        headers: generateHeaders(params)
+        headers: generateHeaders(params?.secret)
     })
 
     return data
@@ -47,11 +47,11 @@ export const createBitbucketWebhook = async (params) => {
 
 export const removeBitbucketWebhook = async (params) => {
     const v = new Validator(params, {
-        hookId: "required|string",
-        workspace: "required|string",
-        repo_slug: "required|string",
-        username: "required|string",
-        password: "required|string",
+        "connection.hookId": "required|string",
+        "connection.workspace": "required|string",
+        "connection.repo_slug": "required|string",
+        "secret.username": "required|string",
+        "secret.password": "required|string",
     });
 
     let match = await v.check();
@@ -59,10 +59,10 @@ export const removeBitbucketWebhook = async (params) => {
         throw HttpError(INVALID_INPUT_ERR_CODE, v.errors);
     }
 
-    let url = `/${params?.workspace}/${params?.repo_slug}/hooks/${params?.hookId}`
+    let url = `/${params?.connection?.workspace}/${params?.connection?.repo_slug}/hooks/${params?.connection?.hookId}`
 
     await Axios.delete(url, {
-        headers: generateHeaders(params)
+        headers: generateHeaders(params?.secret)
     })
 
     return null
@@ -71,10 +71,10 @@ export const removeBitbucketWebhook = async (params) => {
 
 export const getBitbucketPullRequest = async (params) => {
     const v = new Validator(params, {
-        workspace: "required|string",
-        repo_slug: "required|string",
-        username: "required|string",
-        password: "required|string",
+        "connection.workspace": "required|string",
+        "connection.repo_slug": "required|string",
+        "secret.username": "required|string",
+        "secret.password": "required|string",
         prId: "required"
     });
 
@@ -83,13 +83,13 @@ export const getBitbucketPullRequest = async (params) => {
         throw HttpError(INVALID_INPUT_ERR_CODE, v.errors);
     }
 
-    let url = `/${params?.workspace}/${params?.repo_slug}/pullrequests/${params?.prId}`
+    let url = `/${params?.connection?.workspace}/${params?.connection?.repo_slug}/pullrequests/${params?.prId}`
 
     let { data } = await Axios.get(url, {
         params: sanitizeObject({
             page: params?.page
         }),
-        headers: generateHeaders(params)
+        headers: generateHeaders(params?.secret)
     })
 
     return data
@@ -97,10 +97,10 @@ export const getBitbucketPullRequest = async (params) => {
 
 export const listBitbucketPullRequest = async (params) => {
     const v = new Validator(params, {
-        workspace: "required|string",
-        repo_slug: "required|string",
-        username: "required|string",
-        password: "required|string",
+        "connection.workspace": "required|string",
+        "connection.repo_slug": "required|string",
+        "secret.username": "required|string",
+        "secret.password": "required|string",
     });
 
     let match = await v.check();
@@ -108,13 +108,13 @@ export const listBitbucketPullRequest = async (params) => {
         throw HttpError(INVALID_INPUT_ERR_CODE, v.errors);
     }
 
-    let url = `/${params?.workspace}/${params?.repo_slug}/pullrequests`
+    let url = `/${params?.connection?.workspace}/${params?.connection?.repo_slug}/pullrequests`
 
     let { data } = await Axios.get(url, {
         params: sanitizeObject({
             page: params?.page
         }),
-        headers: generateHeaders(params)
+        headers: generateHeaders(params?.secret)
     })
 
     return data
@@ -144,10 +144,10 @@ export const listAllBitbucketPullRequests = async (params) => {
 
 export const listBitbucketPRDiffStat = async (params) => {
     const v = new Validator(params, {
-        workspace: "required|string",
-        repo_slug: "required|string",
-        username: "required|string",
-        password: "required|string",
+        "connection.workspace": "required|string",
+        "connection.repo_slug": "required|string",
+        "secret.username": "required|string",
+        "secret.password": "required|string",
         prId: "required",
     });
 
@@ -157,11 +157,11 @@ export const listBitbucketPRDiffStat = async (params) => {
     }
 
 
-    let url = `https://api.bitbucket.org/2.0/repositories/${params?.workspace}/${params?.repo_slug}/pullrequests/${params?.prId}/diffstat`
+    let url = `https://api.bitbucket.org/2.0/repositories/${params?.connection?.workspace}/${params?.connection?.repo_slug}/pullrequests/${params?.prId}/diffstat`
 
     try {
         let { data } = await axios.get(url, {
-            headers: generateHeaders(params)
+            headers: generateHeaders(params?.secret)
         })
 
         return data
@@ -177,15 +177,14 @@ export const listAllBitbucketPRDiffStats = async (params) => {
     let results = []
     while (true) {
         let list = await listBitbucketPRDiffStat({ ...params, page })
-        // if (list?.values?.length < 1) {
-        //     break;
-        // }
+        if (list?.values?.length < 1) {
+            break;
+        }
 
         results = [
             ...results,
             ...(list?.values || [])
         ]
-        break;
         page += 1
     }
 
@@ -196,8 +195,8 @@ export const listAllBitbucketPRDiffStats = async (params) => {
 export const downloadFileFromBitbucketRepo = async (params) => {
     const v = new Validator(params, {
         url: "required|string",
-        username: "required|string",
-        password: "required|string",
+        "secret.username": "required|string",
+        "secret.password": "required|string",
     });
 
     let match = await v.check();
@@ -209,7 +208,7 @@ export const downloadFileFromBitbucketRepo = async (params) => {
         url: params?.url,
         method: 'GET',
         responseType: "arraybuffer",
-        headers: generateHeaders(params)
+        headers: generateHeaders(params?.secret)
     })
 
     return data
@@ -218,10 +217,10 @@ export const downloadFileFromBitbucketRepo = async (params) => {
 
 export const rejectBitbucketPR = async (params) => {
     const v = new Validator(params, {
-        workspace: "required|string",
-        repo_slug: "required|string",
-        username: "required|string",
-        password: "required|string",
+        "connection.workspace": "required|string",
+        "connection.repo_slug": "required|string",
+        "secret.username": "required|string",
+        "secret.password": "required|string",
         prId: "required",
     });
 
@@ -230,12 +229,12 @@ export const rejectBitbucketPR = async (params) => {
         throw HttpError(INVALID_INPUT_ERR_CODE, v.errors);
     }
 
-    let rejectUrl = `/${params?.workspace}/${params?.repo_slug}/pullrequests/${params?.prId}/decline`
+    let rejectUrl = `/${params?.connection?.workspace}/${params?.connection?.repo_slug}/pullrequests/${params?.prId}/decline`
     await Axios.post(rejectUrl, {}, {
-        headers: generateHeaders(params)
+        headers: generateHeaders(params?.secret)
     })
 
-    let commentUrl = `/${params?.workspace}/${params?.repo_slug}/pullrequests/${params?.prId}/comments`
+    let commentUrl = `/${params?.connection?.workspace}/${params?.connection?.repo_slug}/pullrequests/${params?.prId}/comments`
     let payload = {
         content: {
             raw: params?.comment
@@ -244,7 +243,7 @@ export const rejectBitbucketPR = async (params) => {
 
     await Axios.post(commentUrl, payload,
         {
-            headers: generateHeaders(params)
+            headers: generateHeaders(params?.secret)
         })
 
     return null
@@ -253,10 +252,10 @@ export const rejectBitbucketPR = async (params) => {
 export const approveAndMergeBitbucketPR = async (params) => {
 
     const v = new Validator(params, {
-        workspace: "required|string",
-        repo_slug: "required|string",
-        username: "required|string",
-        password: "required|string",
+        "connection.workspace": "required|string",
+        "connection.repo_slug": "required|string",
+        "secret.username": "required|string",
+        "secret.password": "required|string",
         prId: "required",
     });
 
@@ -265,12 +264,12 @@ export const approveAndMergeBitbucketPR = async (params) => {
         throw HttpError(INVALID_INPUT_ERR_CODE, v.errors);
     }
 
-    let approveUrl = `/${params?.workspace}/${params?.repo_slug}/pullrequests/${params?.prId}/approve`
+    let approveUrl = `/${params?.connection?.workspace}/${params?.connection?.repo_slug}/pullrequests/${params?.prId}/approve`
     await Axios.post(approveUrl, {}, {
         headers: generateHeaders(params)
     })
 
-    let mergeUrl = `/${params?.workspace}/${params?.repo_slug}/pullrequests/${params?.prId}/merge`
+    let mergeUrl = `/${params?.connection?.workspace}/${params?.connection?.repo_slug}/pullrequests/${params?.prId}/merge`
     let payload = {
         "message": "Merging PR",
         "merge_strategy": "merge_commit"
@@ -278,7 +277,7 @@ export const approveAndMergeBitbucketPR = async (params) => {
 
     await Axios.post(mergeUrl, payload,
         {
-            headers: generateHeaders(params)
+            headers: generateHeaders(params?.secret)
         })
 
     return null
@@ -286,10 +285,8 @@ export const approveAndMergeBitbucketPR = async (params) => {
 
 export const execBitbucketGet = async (params) => {
     const v = new Validator(params, {
-        workspace: "required|string",
-        repo_slug: "required|string",
-        username: "required|string",
-        password: "required|string",
+        "secret.username": "required|string",
+        "secret.password": "required|string",
         url: "required|string",
     });
 
@@ -299,7 +296,7 @@ export const execBitbucketGet = async (params) => {
     }
 
     const { data } = await axios.get(params?.url, {
-        headers: generateHeaders(params)
+        headers: generateHeaders(params?.secret)
     })
 
     return data

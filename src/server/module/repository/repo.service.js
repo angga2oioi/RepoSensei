@@ -10,8 +10,6 @@ import { listAllBitbucketPullRequests, removeBitbucketWebhook } from "@/server/u
 import { decrypt } from "@/server/utils/encryption";
 import { connectBitbucketRepository, handleBitbucketWebhook } from "./bitbucket.repository.service";
 
-
-
 export const connectRepository = async (params) => {
 
     const v = new Validator(params, {
@@ -51,11 +49,8 @@ export const removeRepository = async (id) => {
 
     if (raw?.type === BITBUCKET_REPO_TYPE) {
         removeBitbucketWebhook({
-            hookId: raw?.connection?.hookId,
-            workspace: raw?.connection?.workspace,
-            repo_slug: raw?.connection?.repo_slug,
-            username: secret?.username,
-            password: secret?.password,
+            connection:raw?.connection,
+            secret,
         }).catch((e) => console.log(e))
     }
 
@@ -136,10 +131,8 @@ export const manuallyAnalyzeRepo = async (id) => {
         }
 
         let params = {
-            workspace: repo?.connection?.workspace,
-            repo_slug: repo?.connection?.repo_slug,
-            username: secret?.username,
-            password: secret?.password,
+            connection:repo?.connection,
+            secret,
         }
 
         let prList = await listAllBitbucketPullRequests(params)

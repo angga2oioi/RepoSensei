@@ -65,19 +65,18 @@ export const connectBitbucketRepository = async (params) => {
 
         const raw = await repoModel.create([payload], { session })
 
-        const { uuid } = await createBitbucketWebhook({
-            webhookUrl: `${params?.protocol}//${params?.hostname}/api/v1/repositories/${raw?.[0]?._id?.toString()}/webhook`,
-            workspace: payload?.connection?.workspace,
-            repo_slug: payload?.connection?.repo_slug,
-            username: secret?.username,
-            password: secret?.password,
-        })
-
-        await repoModel.findByIdAndUpdate(raw?.[0]?._id?.toString(), {
-            $set: {
-                "connection.hookId": uuid
-            }
-        }, { session })
+        if (params?.hostname !== "localhost") {
+            const { uuid } = await createBitbucketWebhook({
+                webhookUrl: `${params?.protocol}//${params?.hostname}/api/v1/repositories/${raw?.[0]?._id?.toString()}/webhook`,
+                connection: payload?.connection,
+                secret
+            })
+            await repoModel.findByIdAndUpdate(raw?.[0]?._id?.toString(), {
+                $set: {
+                    "connection.hookId": uuid
+                }
+            }, { session })
+        }
 
         await session.commitTransaction()
 
@@ -133,10 +132,8 @@ export const handleBitbucketWebhook = async (repo, prId) => {
     const secret = JSON.parse(decrypt(credential?.secret))
 
     let params = {
-        workspace: repo?.connection?.workspace,
-        repo_slug: repo?.connection?.repo_slug,
-        username: secret?.username,
-        password: secret?.password,
+        connection: repo?.connection,
+        secret,
         prId
     }
 
